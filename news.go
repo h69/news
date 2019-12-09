@@ -24,6 +24,16 @@ type New struct {
 	Origin            string  `json:"origin"`
 }
 
+// Event 事件
+type Event struct {
+	Name       string `json:"name"`
+	Summary    string `json:"summary"`
+	LabelNames string `json:"labelNames"`
+	AreaType   int    `json:"areaType"`
+	Province   string `json:"province"`
+	City       string `json:"city"`
+}
+
 // GetNews 获取新闻
 func GetNews() []New {
 	news := []New{}
@@ -34,8 +44,8 @@ func GetNews() []New {
 	data.Set("areaType", "")
 	data.Set("province", "")
 	data.Set("city", "")
-	data.Set("startTime", GetYesterday())
-	data.Set("endTime", GetToday())
+	data.Set("startTime", GetDate(-1)+" 00:00:00")
+	data.Set("endTime", GetDate(0)+" 00:00:00")
 	data.Set("page", "1")
 	data.Set("pageSize", "1000")
 	data.Set("showTag", "1")
@@ -52,10 +62,12 @@ func GetNews() []New {
 	var resp Resp
 	json.Unmarshal([]byte(body), &resp)
 
-	for _, new := range resp.List {
+	for i, new := range resp.List {
 		if len(news) == 10 {
 			break
 		}
+
+		fmt.Println(i, new.IncidentTitle, new.LongTitle, new.RatioHotDay, new.RatioHotTopCustom, new.Province, new.City, new.LabelNames, new.Origin)
 
 		new.LongTitle = strings.Trim(new.LongTitle, " ")
 		new.LongTitle = strings.Replace(new.LongTitle, " ", "，", -1)
@@ -133,4 +145,69 @@ func GetNews() []New {
 	}
 
 	return news
+}
+
+// GetEvents 获取事件
+func GetEvents() []Event {
+	events := []Event{}
+
+	data := url.Values{}
+	data.Set("sort", "1")
+	data.Set("labels", "")
+	data.Set("areaType", "")
+	data.Set("province", "")
+	data.Set("city", "")
+	data.Set("startTime", GetDate(-7))
+	data.Set("endTime", GetDate(0))
+	data.Set("page", "1")
+	data.Set("pageSize", "1000")
+	data.Set("showTag", "1")
+	data.Set("labelShowTag", "1")
+	data.Set("webShow", "1")
+
+	fmt.Println(data)
+
+	body, _ := PostForm("http://m.wrd.cn/getBigEventList", data)
+
+	type Resp struct {
+		Data []Event `json:"data"`
+	}
+
+	var resp Resp
+	json.Unmarshal([]byte(body), &resp)
+
+	for i, event := range resp.Data {
+		if len(events) == 5 {
+			break
+		}
+
+		fmt.Println(i, event.Name, event.Province, event.City, event.LabelNames)
+
+		event.LabelNames = strings.Replace(event.LabelNames, " ", "", -1)
+		event.LabelNames = strings.Replace(event.LabelNames, "其他", "", -1)
+		event.LabelNames = strings.Replace(event.LabelNames, ",", "，", -1)
+		for _, v := range strings.Split(event.LabelNames, "，") {
+			if v != "小事件" {
+				event.LabelNames = v
+				if len([]rune(event.LabelNames)) == 2 {
+					break
+				}
+			}
+		}
+		event.LabelNames = strings.Split(event.LabelNames, "，")[0]
+
+		if event.Province == "全国" {
+			event.Province = "国内"
+			event.City = ""
+		}
+
+		if event.AreaType == 2 {
+			event.Province = "国际"
+			event.City = ""
+		}
+
+		events = append(events, event)
+	}
+
+	return events
 }

@@ -122,12 +122,7 @@ func StringToInt(s string) int {
 	return 0
 }
 
-// GetYesterday 获取昨天日期
-func GetYesterday() string {
-	return time.Now().AddDate(0, 0, -1).Format("2006-01-02") + " 00:00:00"
-}
-
-// GetToday 获取今天日期
-func GetToday() string {
-	return time.Now().Format("2006-01-02") + " 00:00:00"
+// GetDate 获取日期
+func GetDate(days int) string {
+	return time.Now().AddDate(0, 0, days).Format("2006-01-02")
 }

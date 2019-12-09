@@ -28,16 +28,18 @@ func main() {
 
 func run() {
 	news := GetNews()
+	events := GetEvents()
 
 	title := ""
 	digest := "内含 "
 	content := ""
+	more := ""
 
 	foreign := 0
 	china := make(map[string]int)
 
-	for _, new := range news {
-		fmt.Println(new.IncidentTitle, new.LongTitle, new.RatioHotTopCustom, new.RatioHotDay, new.Province, new.City, new.LabelNames, new.Origin)
+	for i, new := range news {
+		fmt.Println(i, new.IncidentTitle, new.LongTitle, new.RatioHotDay, new.RatioHotTopCustom, new.Province, new.City, new.LabelNames, new.Origin)
 
 		title += new.IncidentTitle + "；"
 
@@ -68,7 +70,13 @@ func run() {
 	digest = strings.Trim(digest, "，")
 	digest += "。"
 
-	content = PrettifyPlaceholder() + PrettifyQuote(digest) + PrettifyPlaceholder() + content + PrettifyPlaceholder() + PrettifyEnd() + PrettifyPlaceholder() + PrettifyCopyright("© 36kr") + PrettifyPlaceholder() + PrettifyFooter()
+	for i, event := range events {
+		fmt.Println(i, event.Name, event.Province, event.City, event.LabelNames)
+
+		more += PrettifyStrong(event.Name)
+	}
+
+	content = PrettifyPlaceholder() + PrettifyQuote(digest) + PrettifyAuthor("Morse Lab") + PrettifyCopyright("36Kr") + PrettifyPlaceholder() + PrettifyPlaceholder() + content + PrettifyPlaceholder() + PrettifyEnd() + PrettifyPlaceholder() + PrettifyMore() + more + PrettifyPlaceholder() + PrettifyPlaceholder() + PrettifyFooter()
 
 	// curl -F media=@cover.png "https://api.weixin.qq.com/cgi-bin/material/add_material?type=thumb&access_token="
 	AddNews(title, digest, content, cover)
