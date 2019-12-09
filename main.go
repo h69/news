@@ -70,6 +70,6 @@ func run() {
 
 	content = PrettifyPlaceholder() + PrettifyQuote(digest) + PrettifyPlaceholder() + content + PrettifyPlaceholder() + PrettifyEnd() + PrettifyPlaceholder() + PrettifyCopyright("© 36kr") + PrettifyPlaceholder() + PrettifyFooter()
 
-	// curl -F media=@1.jpg "https://api.weixin.qq.com/cgi-bin/material/add_material?type=thumb&access_token=xxx"
+	// curl -F media=@cover.png "https://api.weixin.qq.com/cgi-bin/material/add_material?type=thumb&access_token="
 	AddNews(title, digest, content, cover)
 }
