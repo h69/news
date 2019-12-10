@@ -1,4 +1,3 @@
-// http://top.baidu.com
 package main
 
 import (
@@ -69,11 +68,20 @@ func GetNews() []New {
 
 		fmt.Println(i, new.IncidentTitle, new.LongTitle, new.RatioHotDay, new.RatioHotTopCustom, new.Province, new.City, new.LabelNames, new.Origin)
 
+		new.IncidentTitle = strings.Trim(new.IncidentTitle, " ")
+
 		new.LongTitle = strings.Trim(new.LongTitle, " ")
 		new.LongTitle = strings.Replace(new.LongTitle, " ", "，", -1)
 		new.LongTitle = strings.Replace(new.LongTitle, ":", "：", -1)
 		new.LongTitle = strings.Replace(new.LongTitle, ",", "，", -1)
-
+		new.LongTitle = strings.Replace(new.LongTitle, "!", "！", -1)
+		new.LongTitle = strings.Replace(new.LongTitle, "?", "？", -1)
+		new.LongTitle = strings.Replace(new.LongTitle, "！", "，", -1)
+		new.LongTitle = strings.Replace(new.LongTitle, "？", "，", -1)
+		new.LongTitle = strings.Replace(new.LongTitle, "。", "，", -1)
+		new.LongTitle = strings.Replace(new.LongTitle, "转，值得看完，", "", -1)
+		new.LongTitle = strings.Trim(new.LongTitle, "，")
+		
 		new.Origin = strings.Replace(new.Origin, " ", "", -1)
 		new.Origin = strings.Replace(new.Origin, ":", "：", -1)
 		new.Origin = strings.Trim(new.Origin, "：")
@@ -182,6 +190,10 @@ func GetEvents() []Event {
 		}
 
 		fmt.Println(i, event.Name, event.Province, event.City, event.LabelNames)
+
+		event.Name = strings.Replace(event.Name, " ", "", -1)
+		event.Name = strings.Trim(event.Name, "事件")
+		event.Name = strings.Trim(event.Name, "事故")
 
 		event.LabelNames = strings.Replace(event.LabelNames, " ", "", -1)
 		event.LabelNames = strings.Replace(event.LabelNames, "其他", "", -1)

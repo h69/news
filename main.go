@@ -2,13 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"strings"
 
 	"github.com/robfig/cron"
 )
-
-const cover = "Uo9diUdj5z1RQt3KksOY3w3uEML4hL16n2i446jkUYU"
 
 func main() {
 	// CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
@@ -18,66 +14,11 @@ func main() {
 	flag.Parse()
 
 	c := cron.New()
-	c.AddFunc("0 0 8 * * ?", func() {
-		run()
-	})
+	// c.AddFunc("0 0 8 * * ?", func() {
+		article := GenerateArticle()
+		AddNews(article.Title, article.Digest, article.Content, article.Cover)
+	// })
 	c.Start()
 
 	select {}
-}
-
-func run() {
-	news := GetNews()
-	events := GetEvents()
-
-	title := ""
-	digest := "内含 "
-	content := ""
-	more := ""
-
-	foreign := 0
-	china := make(map[string]int)
-
-	for i, new := range news {
-		fmt.Println(i, new.IncidentTitle, new.LongTitle, new.RatioHotDay, new.RatioHotTopCustom, new.Province, new.City, new.LabelNames, new.Origin)
-
-		title += new.IncidentTitle + "；"
-
-		if new.Province == "国际" {
-			foreign++
-		}
-
-		if new.Province != "国内" && new.Province != "国际" {
-			china[new.Province+new.City]++
-		}
-
-		content += PrettifySubtitle(new.IncidentTitle) + PrettifyContent(new.Province+new.City+new.LabelNames+"资讯，"+new.LongTitle+"。（"+new.Origin+"）")
-	}
-
-	if foreign > 0 {
-		digest += IntToString(foreign) + " 封国际电报，"
-	}
-
-	digest += IntToString(len(news)-foreign) + " 封国内电报，"
-
-	if len(china) > 0 {
-		digest += "其中，"
-		for k, v := range china {
-			digest += k + " " + IntToString(v) + " 封" + "，"
-		}
-	}
-
-	digest = strings.Trim(digest, "，")
-	digest += "。"
-
-	for i, event := range events {
-		fmt.Println(i, event.Name, event.Province, event.City, event.LabelNames)
-
-		more += PrettifyStrong(event.Name)
-	}
-
-	content = PrettifyPlaceholder() + PrettifyQuote(digest) + PrettifyAuthor("Morse Lab") + PrettifyCopyright("36Kr") + PrettifyPlaceholder() + PrettifyPlaceholder() + content + PrettifyPlaceholder() + PrettifyEnd() + PrettifyPlaceholder() + PrettifyMore() + more + PrettifyPlaceholder() + PrettifyPlaceholder() + PrettifyFooter()
-
-	// curl -F media=@cover.png "https://api.weixin.qq.com/cgi-bin/material/add_material?type=thumb&access_token="
-	AddNews(title, digest, content, cover)
 }
