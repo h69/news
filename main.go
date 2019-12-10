@@ -14,10 +14,10 @@ func main() {
 	flag.Parse()
 
 	c := cron.New()
-	// c.AddFunc("0 0 8 * * ?", func() {
+	c.AddFunc("0 0 8 * * ?", func() {
 		article := GenerateArticle()
 		AddNews(article.Title, article.Digest, article.Content, article.Cover)
-	// })
+	})
 	c.Start()
 
 	select {}
